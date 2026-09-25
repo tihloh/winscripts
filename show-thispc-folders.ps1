@@ -11,24 +11,27 @@ if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administra
 $basePath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace"
 
 $folders = @{
-    "Desktop"   = "{B4BFCC3A-DB2C-424C-B029-7FE99A87C641}"
-    "Documents" = "{D3162B92-9365-467A-956B-92703ACA08AF}"
-    "Downloads" = "{088E3905-0323-4B02-9826-5D99428E115F}"
-    "Music"     = "{3DFDF296-DBEC-4FB4-81D1-6A3438BCF4DE}"
-    "Pictures"  = "{24AD3AD4-A569-4530-98E1-AB02F9417AA8}"
-    "Videos"    = "{F86FA3AB-70D2-4FC7-9C99-FCBF05467F3A}"
+    "Desktop"   = @("{B4BFCC3A-DB2C-424C-B029-7FE99A87C641}")
+    "Documents" = @("{D3162B92-9365-467A-956B-92703ACA08AF}")
+    "Downloads" = @("{088E3905-0323-4B02-9826-5D99428E115F}")
+    "Music"     = @("{3DFDF296-DBEC-4FB4-81D1-6A3438BCF4DE}", "{1CF1260C-4DD0-4EBB-811F-33C572699FDE}")
+    "Pictures"  = @("{24AD3AD4-A569-4530-98E1-AB02F9417AA8}")
+    "Videos"    = @("{F86FA3AB-70D2-4FC7-9C99-FCBF05467F3A}")
 }
 
 Write-Host "Restoring folders under This PC..." -ForegroundColor Cyan
 
 foreach ($folder in $folders.GetEnumerator()) {
-    $path = Join-Path $basePath $folder.Value
+    foreach ($clsid in $folder.Value) {
+        $path = Join-Path $basePath $clsid
+        if (!(Test-Path $path)) {
+            New-Item -Path $path -Force | Out-Null
+        }
 
-    if (!(Test-Path $path)) {
-        New-Item -Path $path -Force | Out-Null
+        Remove-ItemProperty -Path $path -Name "HideIfEnabled" -ErrorAction SilentlyContinue
+        New-ItemProperty -Path $path -Name "HiddenByDefault" -Value 0 -PropertyType DWord -Force | Out-Null
     }
 
-    Remove-ItemProperty -Path $path -Name "HideIfEnabled" -ErrorAction SilentlyContinue
     Write-Host "  Enabled: $($folder.Key)"
 }
 
@@ -37,4 +40,4 @@ Stop-Process -Name explorer -Force -ErrorAction SilentlyContinue
 Start-Sleep -Seconds 1
 Start-Process explorer.exe
 
-Write-Host "Done. Desktop, Documents, Downloads, Music, Pictures, and Videos should now appear under This PC." -ForegroundColor Green
+Write-Host "Done. Open This PC to verify the folders are visible." -ForegroundColor Green
