@@ -41,3 +41,20 @@ irm https://raw.githubusercontent.com/tihloh/winscripts/main/fixsharedprinter.ps
 ```powershell
 irm https://raw.githubusercontent.com/tihloh/winscripts/main/enable-guestaccess.ps1 | iex
 ```
+
+
+### 📁 3. Show Standard Folders Under "This PC"
+
+**File:** `show-thispc-folders.ps1`  
+**Issue:** Newer Windows 11 versions no longer show the standard **Desktop, Documents, Downloads, Music, Pictures, and Videos** folders under **This PC** by default.
+
+**Fix:** This script restores those six folders under **This PC** by recreating their Explorer namespace entries and refreshing File Explorer.
+
+#### 🔧 How to Use
+
+1. Open **PowerShell as Administrator**.
+2. Run:
+
+```powershell
+irm https://raw.githubusercontent.com/tihloh/winscripts/main/show-thispc-folders.ps1 | iex
+```
